@@ -2,7 +2,8 @@
 // API Base URL
 // ==============================
 
-const BASE_URL = "https://sancation-impact.onrender.com";
+// Since frontend + backend are SAME domain (FastAPI serving UI)
+const BASE_URL = "";
 
 // ==============================
 // Predict Sanction Impact
@@ -28,7 +29,6 @@ export async function analyzeSanction(policy: any) {
     throw error;
   }
 }
-
 
 // ==============================
 // Explain Specific Metric Dip
@@ -58,34 +58,49 @@ export async function explainMetric(payload: {
     throw error;
   }
 }
+
 // ==============================
 // Macro Risk API
 // ==============================
 
 export async function getMacroRisk(countryCode: string) {
-  const response = await fetch("http://localhost:8000/macro-risk", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ country_code: countryCode }),
-  });
+  try {
+    const response = await fetch(`${BASE_URL}/macro-risk`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ country_code: countryCode }),
+    });
 
-  if (!response.ok) {
-    throw new Error("Macro risk request failed");
+    if (!response.ok) {
+      throw new Error("Macro risk request failed");
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error in getMacroRisk:", error);
+    throw error;
   }
-
-  return await response.json();
 }
-//================================
-//time series call
-//================================
+
+// ==============================
+// Macro Timeseries API
+// ==============================
+
 export async function getMacroTimeseries(countryCode: string) {
-  const res = await fetch(
-    `http://localhost:8000/macro-timeseries?country_code=${countryCode}`
-  );
+  try {
+    const res = await fetch(
+      `${BASE_URL}/macro-timeseries?country_code=${countryCode}`
+    );
 
-  if (!res.ok) throw new Error("Failed to fetch macro data");
+    if (!res.ok) {
+      throw new Error("Failed to fetch macro data");
+    }
 
-  return await res.json();
+    return await res.json();
+  } catch (error) {
+    console.error("Error in getMacroTimeseries:", error);
+    throw error;
+  }
 }
